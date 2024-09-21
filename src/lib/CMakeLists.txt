@@ -1,4 +1,5 @@
-add_library(
+add_library(networklib
+	tcp_connection_handler.cpp
 )
 
 target_link_libraries(networklib PRIVATE
@@ -6,3 +7,4 @@ target_link_libraries(networklib PRIVATE
 )
 
 target_include_directories(networklib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
