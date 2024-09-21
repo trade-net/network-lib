@@ -1,18 +1,19 @@
 #include <tcp_async_server.h>
 
 
-TcpAsyncServer::TcpAsyncServer(boost::asio::io_context& io_context)
+TcpAsyncServer::TcpAsyncServer(boost::asio::io_context& io_context, ReadHandler handler)
 : s_acceptor(io_context, tcp::endpoint(tcp::v4(), 1234))
 , s_io_context(io_context)
+, s_readHandler(handler)
 {
 	startAccept();
 }
 
 void TcpAsyncServer::handleAccept(
-	ConnectionHandler::connPtr connection, const boost::system::error_code& err
+	ConnectionHandler::connPtr connection, const boost::system::error_code& ec
 )
 {
-	if(!err)
+	if(!ec)
 	{
 		connection->start();
 	}
@@ -21,7 +22,7 @@ void TcpAsyncServer::handleAccept(
 
 void TcpAsyncServer::startAccept()
 {
-	ConnectionHandler::connPtr connection = ConnectionHandler::create(s_io_context);
+	ConnectionHandler::connPtr connection = ConnectionHandler::create(s_io_context, s_readHandler);
 	s_acceptor.async_accept(
 		connection->socket(),
 		boost::bind(

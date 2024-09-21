@@ -6,14 +6,18 @@
 class TcpAsyncServer
 {
 public:
-	TcpAsyncServer(boost::asio::io_context& io_context);
+	using ReadHandler = std::function<std::string(const std::string&)>;
 
-	void handleAccept(ConnectionHandler::connPtr connection, const boost::system::error_code& err);
+	TcpAsyncServer(boost::asio::io_context& io_context, ReadHandler handler);
+
+	void handleAccept(ConnectionHandler::connPtr connection, const boost::system::error_code& ec);
 
 private:
+	void startAccept();
+
 	tcp::acceptor s_acceptor;
 	boost::asio::io_context& s_io_context;
-	void startAccept();
+	ReadHandler s_readHandler;
 };
 
 
