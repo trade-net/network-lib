@@ -5,7 +5,7 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#define MAX_DATA_LENGTH 1024;
+#define MAX_DATA_LENGTH 1024
 
 using namespace boost::asio;
 using ip::tcp;
@@ -14,15 +14,14 @@ class ConnectionHandler : public boost::enable_shared_from_this<ConnectionHandle
 {
 public:
 	typedef boost::shared_ptr<ConnectionHandler> connPtr;
-	ConnectionHandler(boost::asio::io_service& io_service);
+	ConnectionHandler(boost::asio::io_context& io_context);
 
-	static connPtr create(boost:asio::io_service& io_service);
+	static connPtr create(boost::asio::io_context& io_context);
 
 	tcp::socket& socket();
 
 	void start();
 	void handleRead(const boost::system::error_code& err, size_t bytes_transferred);
-	void handleWrite(const boost::system::error_code& err, size_t bytes_transferred);
 
 private:
 	tcp::socket s_socket;
