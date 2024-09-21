@@ -33,14 +33,24 @@ void ConnectionHandler::handleRead(const boost::system::error_code& err, size_t 
 {
 	if(!err)
 	{
-		std::cout << data << std::endl;
+		std::string dataStr(data, bytes_transformed);
+		std::cout << dataStr << std::endl;
 
 		boost::system::error_code ec;
 		boost::asio::write(
 			s_socket,
-			boost::asio::buffer("1\n"),
+			boost::asio::buffer("1"),
 			ec
 		);
+
+		if(dataStr != "0")
+		{
+			start();
+		}
+		else
+		{
+			std::cout << "Connection ending" << std::endl;
+		}
 	}
 	else
 	{
