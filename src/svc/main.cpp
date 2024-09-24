@@ -1,18 +1,14 @@
 #include <tcp_async_server.h>
 #include <iostream>
-
-std::string handler(const std::string& inp)
-{
-	std::cout << "Printing data from handler: " << inp << std::endl;
-	return "1";
-}
+#include <my_request_processor.h>
 
 int main()
 {
 	try
 	{
 		boost::asio::io_context io_context;
-		TcpAsyncServer server(io_context, handler);
+		MyRequestProcessor processor;
+		TcpAsyncServer server(io_context, processor);
 		io_context.run();
 	}
 
