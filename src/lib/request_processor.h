@@ -2,10 +2,14 @@
 #define INCLUDED_REQUEST_PROCESSOR_BASE
 
 //#include <google/protobuf/message.h>
-#include <map>
+#include <unordered_map>
+#include <threadpool.h>
+#include <iostream>
 
 class RequestProcessor{
 public:
+	RequestProcessor(size_t poolSize): threadPool(poolSize){}
+
 	using RequestHandler = std::function<std::string(const std::string&)>;
 
 	template <typename Request, typename Response>
@@ -24,19 +28,25 @@ public:
 		};
 	}
 
-	std::string processRequest(const std::string& requestType, const std::string& requestData)
+	void processRequest(const std::string& requestType, const std::string& requestData, std::function<void(const std::string&)> onComplete)
 	{
 		auto it = s_handlers.find(requestType);
 		if(it != s_handlers.end())
 		{
-			return it->second(requestData);
+			threadPool.enqueue([handler = it->second, requestData, onComplete]{
+				std::string response = handler(requestData);
+				std::cout << "Processing Request" << std::endl;
+				onComplete(response);
+			});
+			return;
+
 		}
 		throw std::runtime_error("No handler implemented for request type");
 	}
 
 private:
-	std::map<std::string, RequestHandler> s_handlers;
-
+	ThreadPool threadPool;
+	std::unordered_map<std::string, RequestHandler> s_handlers;
 };
 
 #endif

@@ -37,13 +37,17 @@ void ConnectionHandler::handleRead(const boost::system::error_code& ec, size_t b
 		std::string requestData(data, bytes_transformed);
 		std::string requestType = "getOrder";
 
-		std::string response = s_processor.processRequest(requestType, requestData);
-
-		boost::system::error_code response_ec;
-		boost::asio::write(
-			s_socket,
-			boost::asio::buffer(response),
-			response_ec
+		s_processor.processRequest(
+			requestType,
+			requestData, 
+			[this](const std::string& response){
+				boost::system::error_code ec;
+				boost::asio::write(
+					s_socket,
+					boost::asio::buffer(response),
+					ec
+				);
+			}
 		);
 		start();
 	}

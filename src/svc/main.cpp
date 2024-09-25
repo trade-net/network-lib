@@ -7,7 +7,7 @@ int main()
 	try
 	{
 		boost::asio::io_context io_context;
-		MyRequestProcessor processor;
+		MyRequestProcessor processor(4);
 		TcpAsyncServer server(io_context, processor);
 		io_context.run();
 	}
