@@ -1,28 +1,28 @@
-#include <tcp_connection_handler.h>
+#include <tcp_session.h>
 #include <iostream>
 
-ConnectionHandler::ConnectionHandler(boost::asio::io_context& io_context, RequestProcessor& processor)
+TcpSession::TcpSession(boost::asio::io_context& io_context, RequestProcessor& processor)
 : s_socket(io_context)
 , s_processor(processor)
 {}
 
-ConnectionHandler::connPtr ConnectionHandler::create(boost::asio::io_context& io_context, RequestProcessor& processor)
+TcpSession::sessionPtr TcpSession::create(boost::asio::io_context& io_context, RequestProcessor& processor)
 {
-	return connPtr(new ConnectionHandler(io_context, processor));
+	return sessionPtr(new TcpSession(io_context, processor));
 }
 
-tcp::socket& ConnectionHandler::socket()
+tcp::socket& TcpSession::socket()
 {
 	return s_socket;
 }
 
 
-void ConnectionHandler::start()
+void TcpSession::start()
 {
 	s_socket.async_read_some(
 		boost::asio::buffer(data, MAX_DATA_LENGTH),
 		boost::bind(
-			&ConnectionHandler::handleRead,
+			&TcpSession::handleRead,
 			shared_from_this(),
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred
@@ -30,7 +30,7 @@ void ConnectionHandler::start()
 	);
 }
 
-void ConnectionHandler::handleRead(const boost::system::error_code& ec, size_t bytes_transformed)
+void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_transformed)
 {
 	if(!ec)
 	{

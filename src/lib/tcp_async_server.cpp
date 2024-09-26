@@ -10,25 +10,25 @@ TcpAsyncServer::TcpAsyncServer(boost::asio::io_context& io_context, RequestProce
 }
 
 void TcpAsyncServer::handleAccept(
-	ConnectionHandler::connPtr connection, const boost::system::error_code& ec
+	TcpSession::sessionPtr session, const boost::system::error_code& ec
 )
 {
 	if(!ec)
 	{
-		connection->start();
+		session->start();
 	}
 	startAccept();
 }
 
 void TcpAsyncServer::startAccept()
 {
-	ConnectionHandler::connPtr connection = ConnectionHandler::create(s_io_context, s_processor);
+	TcpSession::sessionPtr session = TcpSession::create(s_io_context, s_processor);
 	s_acceptor.async_accept(
-		connection->socket(),
+		session->socket(),
 		boost::bind(
 			&TcpAsyncServer::handleAccept,
 			this,
-			connection,
+			session,
 			boost::asio::placeholders::error
 		)
 	);

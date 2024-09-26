@@ -1,5 +1,5 @@
 add_library(networklib
-	tcp_connection_handler.cpp
+	tcp_session.cpp
 	tcp_async_server.cpp
 	threadpool.cpp
 )

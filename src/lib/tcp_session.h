@@ -11,14 +11,14 @@
 using namespace boost::asio;
 using ip::tcp;
 
-class ConnectionHandler : public boost::enable_shared_from_this<ConnectionHandler>
+class TcpSession : public boost::enable_shared_from_this<TcpSession>
 {
 public:
-	using connPtr = boost::shared_ptr<ConnectionHandler>;
+	using sessionPtr = boost::shared_ptr<TcpSession>;
 
-	ConnectionHandler(boost::asio::io_context& io_context, RequestProcessor& processor);
+	TcpSession(boost::asio::io_context& io_context, RequestProcessor& processor);
 
-	static connPtr create(boost::asio::io_context& io_context, RequestProcessor& processor);
+	static sessionPtr create(boost::asio::io_context& io_context, RequestProcessor& processor);
 
 	tcp::socket& socket();
 
