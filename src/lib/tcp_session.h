@@ -24,6 +24,7 @@ public:
 
 	void start();
 	void handleRead(const boost::system::error_code& ec, size_t bytes_transferred);
+	void handleWrite(const boost::system::error_code& ec, size_t bytes_transferred);
 
 private:
 	tcp::socket s_socket;

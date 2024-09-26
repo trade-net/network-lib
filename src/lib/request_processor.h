@@ -4,7 +4,6 @@
 //#include <google/protobuf/message.h>
 #include <unordered_map>
 #include <threadpool.h>
-#include <iostream>
 
 class RequestProcessor{
 public:
@@ -35,7 +34,6 @@ public:
 		{
 			threadPool.enqueue([handler = it->second, requestData, onComplete]{
 				std::string response = handler(requestData);
-				std::cout << "Processing Request" << std::endl;
 				onComplete(response);
 			});
 			return;

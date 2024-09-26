@@ -30,22 +30,39 @@ void TcpSession::start()
 	);
 }
 
-void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_transformed)
+void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_transferred)
 {
 	if(!ec)
 	{
-		std::string requestData(data, bytes_transformed);
+		std::string requestData(data, bytes_transferred);
 		std::string requestType = "getOrder";
+
+		if(requestData == "\n")
+		{
+			s_socket.async_write_some(
+				boost::asio::buffer("\n", MAX_DATA_LENGTH),
+				boost::bind(
+					&TcpSession::handleWrite,
+					shared_from_this(),
+					boost::asio::placeholders::error,
+					boost::asio::placeholders::bytes_transferred
+				)
+			);
+			return;
+		}
 
 		s_processor.processRequest(
 			requestType,
 			requestData, 
 			[this](const std::string& response){
-				boost::system::error_code ec;
-				boost::asio::write(
-					s_socket,
-					boost::asio::buffer(response),
-					ec
+				s_socket.async_write_some(
+					boost::asio::buffer(response, MAX_DATA_LENGTH),
+					boost::bind(
+						&TcpSession::handleWrite,
+						shared_from_this(),
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred
+					)
 				);
 			}
 		);
@@ -56,4 +73,14 @@ void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_tr
 		std::cerr << "error: " << ec.message() << std::endl;
 		s_socket.close();
 	}
+}
+
+void TcpSession::handleWrite(const boost::system::error_code& ec, size_t bytes_transferred)
+{
+	if(ec)
+	{
+		std::cerr << "error: " << ec.message() << std::endl;
+		s_socket.close();
+	}
+
 }
