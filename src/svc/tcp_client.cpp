@@ -60,7 +60,7 @@ int main() {
         client.sendMessage("Hello, Server!");
         client.sendMessage("How are you?");
         client.sendMessage("How are you?");
-        client.sendMessage("0");
+        client.sendMessage("\n");
         
         // You can continue sending more messages without closing the connection
         // client.sendMessage("Another message");

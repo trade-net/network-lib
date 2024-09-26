@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message Order {
+	int32 id = 1;
+	string name = 2;
+	bool isBuy = 3;
+}
