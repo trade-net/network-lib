@@ -1,7 +1,7 @@
 #ifndef INCLUDED_REQUEST_PROCESSOR_BASE
 #define INCLUDED_REQUEST_PROCESSOR_BASE
 
-//#include <google/protobuf/message.h>
+#include <google/protobuf/message.h>
 #include <unordered_map>
 #include <threadpool.h>
 

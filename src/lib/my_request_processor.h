@@ -1,4 +1,4 @@
-#include <order.h>
+#include <order.pb.h>
 #include <iostream>
 
 class MyRequestProcessor : public RequestProcessor{
@@ -13,14 +13,14 @@ public:
 	Order processGetOrder(const Order& request)
 	{
 		std::cout << "Input Order: "
-			<< "id=" << request.id
-			<< ", name=" << request.name 
-			<< ", isBuy=" << request.isbuy << std::endl;
+			<< "id=" << request.id()
+			<< ", name=" << request.name()
+			<< ", isBuy=" << request.isbuy() << std::endl;
 
 		Order response;
-		response.id = request.id + 1;
-		response.name = "Response order";
-		response.isbuy = false;
+		response.set_id(request.id() + 1);
+		response.set_name("Response order");
+		response.set_isbuy(false);
 
 		return response;
 	}
