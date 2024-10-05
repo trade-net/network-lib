@@ -1,5 +1,4 @@
 find_package(Protobuf REQUIRED)
-find_package(absl REQUIRED)
 
 include_directories(${Protobuf_INCLUDE_DIRS})
 
@@ -14,7 +13,7 @@ add_library(protolib
 )
 
 target_link_libraries(protolib PRIVATE
-	${Protobuf_LIBRARIES} 
+	protobuf
 )
 
 target_include_directories(protolib PUBLIC 
