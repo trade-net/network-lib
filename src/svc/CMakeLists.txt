@@ -8,11 +8,9 @@ add_executable(client
 
 target_link_libraries(network PRIVATE
 	networklib
-	protolib
 )
 
 target_link_libraries(client PRIVATE
-	protolib
 	networklib
 )
 

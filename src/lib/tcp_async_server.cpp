@@ -1,9 +1,8 @@
 #include <tcp_async_server.h>
 
 
-TcpAsyncServer::TcpAsyncServer(boost::asio::io_context& io_context, RequestProcessor& processor)
-: s_acceptor(io_context, tcp::endpoint(tcp::v4(), 1234))
-, s_io_context(io_context)
+TcpAsyncServer::TcpAsyncServer(RequestProcessor& processor)
+: s_acceptor(s_io_context, tcp::endpoint(tcp::v4(), 1234))
 , s_processor(processor)
 {
 	startAccept();

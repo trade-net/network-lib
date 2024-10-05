@@ -7,15 +7,19 @@
 class TcpAsyncServer
 {
 public:
-	TcpAsyncServer(boost::asio::io_context& io_context, RequestProcessor& s_processor);
+	TcpAsyncServer(RequestProcessor& s_processor);
 
 	void handleAccept(TcpSession::sessionPtr session, const boost::system::error_code& ec);
 
+	void run()
+	{
+		s_io_context.run();
+	}
+
 private:
 	void startAccept();
-
+	boost::asio::io_context s_io_context;
 	tcp::acceptor s_acceptor;
-	boost::asio::io_context& s_io_context;
 	RequestProcessor& s_processor;
 };
 
