@@ -1,6 +1,7 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <string>
+#include <order.pb.h>
 
 using boost::asio::ip::tcp;
 
@@ -28,7 +29,13 @@ public:
         std::array<char, 1024> response;
         size_t length = socket_.read_some(boost::asio::buffer(response), ec);
         if (!ec) {
-            std::cout << "Server response: " << std::string(response.data(), length) << std::endl;
+            //std::cout << "Server response: " << std::string(response.data(), length) << std::endl;
+        	Order order;
+        	order.ParseFromString(std::string(response.data(), length));
+			std::cout << "Order: "
+				<< "id=" << order.id()
+				<< ", name=" << order.name()
+				<< ", isBuy=" << order.isbuy() << std::endl;
         } else {
             std::cerr << "Error receiving response: " << ec.message() << std::endl;
         }
@@ -57,9 +64,15 @@ int main() {
         Client client(io_context, "127.0.0.1", "1234");
 
         // Send messages and wait for responses
-        client.sendMessage("Hello, Server!");
-        client.sendMessage("How are you?");
-        client.sendMessage("How are you?");
+		Order order;
+		order.set_id(1);
+		order.set_name("Order 1");
+		order.set_isbuy(true);
+
+        client.sendMessage(order.SerializeAsString());
+        client.sendMessage(order.SerializeAsString());
+        //client.sendMessage("How are you?");
+        //client.sendMessage("How are you?");
         client.sendMessage("\n");
         
         // You can continue sending more messages without closing the connection
