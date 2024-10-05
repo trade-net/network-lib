@@ -5,6 +5,10 @@ add_library(networklib
 )
 
 target_link_libraries(networklib PRIVATE
+	pthread
+)
+
+target_link_libraries(networklib PUBLIC
 	protolib
 	pthread
 )
