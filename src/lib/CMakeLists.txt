@@ -8,16 +8,45 @@ target_link_libraries(networklib PRIVATE
 	pthread
 )
 
-target_link_libraries(networklib PUBLIC
-	protolib
-	pthread
-)
-
 target_include_directories(networklib PUBLIC 
-	${CMAKE_CURRENT_SOURCE_DIR}
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>
 )
 
-include(GNUInstallDirs)
-install(TARGETS networklib DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include)
+install(FILES
+	tcp_async_server.h
+	request_processor.h
+	DESTINATION include/networklib
+)
+
+#install(TARGETS networklib DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS networklib
+	EXPORT NetworkLibTargets
+	LIBRARY DESTINATION lib
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"${CMAKE_CURRENT_BINARY_DIR}/networklibConfigVersion.cmake"
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY AnyNewerVersion
+)
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/networklibConfig.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/networklibConfig.cmake"
+	@ONLY
+)
+
+install(FILES
+	"${CMAKE_CURRENT_BINARY_DIR}/networklibConfig.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/networklibConfigVersion.cmake"
+	DESTINATION lib/cmake/networklib
+)
+
+install(EXPORT NetworkLibTargets
+	FILE NetworkLibTargets.cmake
+	NAMESPACE networklib::
+	DESTINATION lib/cmake/networklib
+)
 
