@@ -4,6 +4,8 @@
 #include <google/protobuf/message.h>
 #include <unordered_map>
 #include <threadpool.h>
+#include <type_traits>
+#include <iostream>
 
 class RequestProcessor{
 public:
@@ -23,7 +25,14 @@ public:
 
 			Response response = handler(request);
 
-			return response.SerializeAsString();
+			if constexpr(std::is_same<Response, int>::value)
+			{
+				return std::to_string(response);
+			}
+			else
+			{
+				return response.SerializeAsString();
+			}
 		};
 	}
 

@@ -15,7 +15,9 @@ target_include_directories(networklib PUBLIC
 
 install(FILES
 	tcp_async_server.h
+	tcp_session.h
 	request_processor.h
+	threadpool.h
 	DESTINATION include/networklib
 )
 
@@ -46,7 +48,6 @@ install(FILES
 
 install(EXPORT NetworkLibTargets
 	FILE NetworkLibTargets.cmake
-	NAMESPACE networklib::
 	DESTINATION lib/cmake/networklib
 )
 
