@@ -1,6 +1,8 @@
 #include <threadpool.h>
 #include <iostream>
 
+namespace network{
+
 ThreadPool::ThreadPool(size_t numThreads)
 {
 	for(size_t i = 0; i < numThreads; ++i)
@@ -60,4 +62,6 @@ ThreadPool::~ThreadPool()
 	{
 		worker.join();
 	}
+}
+
 }

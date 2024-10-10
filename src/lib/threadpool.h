@@ -9,6 +9,8 @@
 #include <condition_variable>
 #include <memory>
 
+namespace network{
+
 class ThreadPool{
 public:
 	ThreadPool(size_t numThreads);
@@ -24,5 +26,7 @@ private:
 	std::condition_variable condition;
 	bool stop = false;
 };
+
+}
 
 #endif

@@ -6,6 +6,7 @@
 #include <threadpool.h>
 #include <type_traits>
 #include <iostream>
+namespace network{
 
 class RequestProcessor{
 public:
@@ -56,4 +57,5 @@ private:
 	std::unordered_map<std::string, RequestHandler> s_handlers;
 };
 
+}
 #endif

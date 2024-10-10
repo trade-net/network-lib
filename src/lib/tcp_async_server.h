@@ -4,6 +4,8 @@
 #include <tcp_session.h>
 #include <request_processor.h>
 
+namespace network{
+
 class TcpAsyncServer
 {
 public:
@@ -23,5 +25,6 @@ private:
 	RequestProcessor& s_processor;
 };
 
+}
 
 #endif

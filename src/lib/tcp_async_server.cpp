@@ -1,5 +1,6 @@
 #include <tcp_async_server.h>
 
+namespace network{
 
 TcpAsyncServer::TcpAsyncServer(RequestProcessor& processor)
 : s_acceptor(s_io_context, tcp::endpoint(tcp::v4(), 1234))
@@ -33,3 +34,4 @@ void TcpAsyncServer::startAccept()
 	);
 }
 
+}
