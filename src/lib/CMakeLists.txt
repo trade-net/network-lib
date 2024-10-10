@@ -18,7 +18,7 @@ install(FILES
 	tcp_session.h
 	request_processor.h
 	threadpool.h
-	DESTINATION include/networklib
+	DESTINATION include
 )
 
 #install(TARGETS networklib DESTINATION ${CMAKE_INSTALL_LIBDIR})
