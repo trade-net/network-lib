@@ -8,6 +8,8 @@
 
 #define MAX_DATA_LENGTH 1024
 
+namespace network{
+
 using namespace boost::asio;
 using ip::tcp;
 
@@ -34,5 +36,6 @@ private:
 
 };
 
+}
 
 #endif

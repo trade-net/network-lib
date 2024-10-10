@@ -1,6 +1,8 @@
 #include <tcp_session.h>
 #include <iostream>
 
+namespace network{
+
 TcpSession::TcpSession(boost::asio::io_context& io_context, RequestProcessor& processor)
 : s_socket(io_context)
 , s_processor(processor)
@@ -82,5 +84,7 @@ void TcpSession::handleWrite(const boost::system::error_code& ec, size_t bytes_t
 		std::cerr << "error: " << ec.message() << std::endl;
 		s_socket.close();
 	}
+
+}
 
 }
