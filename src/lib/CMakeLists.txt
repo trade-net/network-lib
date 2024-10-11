@@ -1,6 +1,7 @@
 add_library(networklib
-	tcp_session.cpp
 	tcp_async_server.cpp
+	tcp_client.cpp
+	tcp_session.cpp
 	threadpool.cpp
 )
 
@@ -15,6 +16,7 @@ target_include_directories(networklib PUBLIC
 
 install(FILES
 	tcp_async_server.h
+	tcp_client.h
 	tcp_session.h
 	request_processor.h
 	threadpool.h

@@ -5,7 +5,7 @@ class MyRequestProcessor : public RequestProcessor{
 public:
 	MyRequestProcessor(size_t poolSize): RequestProcessor(poolSize)
 	{
-		registerHandler<Order, Order>("getOrder", [this](const Order& request){
+		registerHandler<Order, Order>([this](const Order& request){
 			return processGetOrder(request);
 		});
 	}

@@ -36,13 +36,11 @@ void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_tr
 {
 	if(!ec)
 	{
-		std::string requestData(data, bytes_transferred);
-		std::string requestType = "getOrder";
 
-		if(requestData == "\n")
+		if(data[0] == 127)
 		{
 			s_socket.async_write_some(
-				boost::asio::buffer("\n", MAX_DATA_LENGTH),
+				boost::asio::buffer(data, sizeof(data)),
 				boost::bind(
 					&TcpSession::handleWrite,
 					shared_from_this(),
@@ -53,12 +51,15 @@ void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_tr
 			return;
 		}
 
+		int requestId = data[0]; // first byte is the requestId
+		std::string requestData(data + 1, bytes_transferred - 1); // the request is in the remaining string
+
 		s_processor.processRequest(
-			requestType,
+			requestId,
 			requestData, 
 			[this](const std::string& response){
 				s_socket.async_write_some(
-					boost::asio::buffer(response, MAX_DATA_LENGTH),
+					boost::asio::buffer(response, sizeof(response)),
 					boost::bind(
 						&TcpSession::handleWrite,
 						shared_from_this(),
