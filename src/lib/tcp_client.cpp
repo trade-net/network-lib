@@ -13,6 +13,11 @@ TcpClient::TcpClient(const std::string& ip, const std::string& port)
 	connect(endpoints);
 }
 
+std::string TcpClient::send(const std::string& request)
+{
+	return send(0, request);
+}
+
 std::string TcpClient::send(int requestId, const std::string& request)
 {
 	boost::system::error_code ec;
