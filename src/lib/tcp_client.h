@@ -14,7 +14,7 @@ class TcpClient {
 public:
     TcpClient(const std::string& ip, const std::string& port);
 
-    std::string send(const std::string& requestName, const std::string& request);
+    std::string send(int requestId, const std::string& request);
 
 private:
     void connect(const tcp::resolver::results_type& endpoints);

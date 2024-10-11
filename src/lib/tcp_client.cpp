@@ -13,12 +13,12 @@ TcpClient::TcpClient(const std::string& ip, const std::string& port)
 	connect(endpoints);
 }
 
-std::string TcpClient::send(const std::string& requestName, const std::string& request)
+std::string TcpClient::send(int requestId, const std::string& request)
 {
 	boost::system::error_code ec;
 
 	// Send the message to the server
-	boost::asio::write(s_socket, boost::asio::buffer(request), ec);
+	boost::asio::write(s_socket, boost::asio::buffer(static_cast<char>(requestId) + request), ec); // first byte is requestId
 	if (!ec) 
 	{
 		std::cout << "Message sent: " << request << std::endl;
