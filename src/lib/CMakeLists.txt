@@ -5,6 +5,10 @@ add_library(networklib
 	threadpool.cpp
 )
 
+find_package(Boost REQUIRED)
+
+target_include_directories(networklib PRIVATE ${Boost_INCLUDE_DIRS})
+
 target_link_libraries(networklib PRIVATE
 	pthread
 )
