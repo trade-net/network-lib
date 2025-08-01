@@ -1,7 +1,8 @@
 #include <order.pb.h>
+#include <request_processor.h>
 #include <iostream>
 
-class MyRequestProcessor : public RequestProcessor{
+class MyRequestProcessor : public network::RequestProcessor{
 public:
 	MyRequestProcessor(size_t poolSize): RequestProcessor(poolSize)
 	{

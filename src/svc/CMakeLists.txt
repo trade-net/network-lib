@@ -7,6 +7,7 @@ add_executable(client
 )
 
 target_link_libraries(network PRIVATE
+	protolib
 	networklib
 )
 

@@ -10,6 +10,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 
 add_library(protolib 
 	${PROTO_SRCS}
+	${PROTO_HDRS}
 )
 
 target_link_libraries(protolib PRIVATE
