@@ -36,6 +36,18 @@ void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_tr
 {
 	if(!ec)
 	{
+		if(data[0] == 127)
+		{
+			auto self = shared_from_this();
+			s_socket.async_write_some(
+				boost::asio::buffer(data, sizeof(data)),
+				[this, self](boost::system::error_code ec, std::size_t /*length*/) {
+					s_socket.close(); // Now close properly
+				}
+			);
+			return;
+		}
+
 		start();
 		int requestId = data[0]; // first byte is the requestId
 		std::string requestData(data + 1, bytes_transferred - 1); // the request is in the remaining string
