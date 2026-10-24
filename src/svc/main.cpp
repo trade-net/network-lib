@@ -6,7 +6,7 @@ int main()
 {
 	try
 	{
-		MyRequestProcessor processor(4);
+		MyRequestProcessor processor;
 		network::TcpAsyncServer server(processor);
 		server.run();
 	}

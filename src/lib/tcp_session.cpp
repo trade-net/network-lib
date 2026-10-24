@@ -34,55 +34,93 @@ void TcpSession::start()
 
 void TcpSession::handleRead(const boost::system::error_code& ec, size_t bytes_transferred)
 {
-	if(!ec)
+	if(ec || bytes_transferred == 0)
 	{
-		if(data[0] == 127)
+		if(ec != boost::asio::error::eof)
 		{
-			auto self = shared_from_this();
-			s_socket.async_write_some(
-				boost::asio::buffer(data, sizeof(data)),
-				[this, self](boost::system::error_code ec, std::size_t /*length*/) {
-					s_socket.close(); // Now close properly
-				}
-			);
-			return;
+			std::cerr << "error: " << ec.message() << std::endl;
 		}
-
-		start();
-		int requestId = data[0]; // first byte is the requestId
-		std::string requestData(data + 1, bytes_transferred - 1); // the request is in the remaining string
-
-		s_processor.processRequest(
-			requestId,
-			requestData, 
-			[this](const std::string& response){
-				s_socket.async_write_some(
-					boost::asio::buffer(response.data(), response.size()),
-					boost::bind(
-						&TcpSession::handleWrite,
-						shared_from_this(),
-						boost::asio::placeholders::error,
-						boost::asio::placeholders::bytes_transferred
-					)
-				);
-			}
-		);
-	}
-	else
-	{
-		std::cerr << "error: " << ec.message() << std::endl;
 		s_socket.close();
+		return;
 	}
+
+	if(data[0] == 127)
+	{
+		// acknowledge with the close opcode, then close once the reply is flushed
+		s_closeAfterWrite = true;
+		write(makeResponse(ResponseStatus::Ok, std::string(1, static_cast<char>(127))));
+		return;
+	}
+
+	// copy out of the read buffer before re-arming the read, which reuses it
+	int requestId = static_cast<unsigned char>(data[0]); // first byte is the requestId
+	std::string requestData(data + 1, bytes_transferred - 1); // the request is in the remaining string
+
+	start();
+
+	s_processor.processRequest(
+		requestId,
+		requestData,
+		[self = shared_from_this()](std::string response){
+			self->write(std::move(response));
+		}
+	);
+}
+
+void TcpSession::write(std::string response)
+{
+	boost::asio::post(
+		s_socket.get_executor(),
+		[self = shared_from_this(), response = std::move(response)]() mutable {
+			self->s_writeQueue.push_back(std::move(response));
+			if(!self->s_writing)
+			{
+				self->doWrite();
+			}
+		}
+	);
+}
+
+void TcpSession::doWrite()
+{
+	s_writing = true;
+	boost::asio::async_write(
+		s_socket,
+		boost::asio::buffer(s_writeQueue.front()),
+		boost::bind(
+			&TcpSession::handleWrite,
+			shared_from_this(),
+			boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred
+		)
+	);
 }
 
 void TcpSession::handleWrite(const boost::system::error_code& ec, size_t bytes_transferred)
 {
+	s_writeQueue.pop_front();
+
 	if(ec)
 	{
 		std::cerr << "error: " << ec.message() << std::endl;
 		s_socket.close();
+		s_writeQueue.clear();
+		s_writing = false;
+		return;
 	}
 
+	if(s_writeQueue.empty())
+	{
+		s_writing = false;
+		if(s_closeAfterWrite)
+		{
+			s_socket.close();
+		}
+	}
+	else
+	{
+		doWrite();
+	}
 }
 
 }

@@ -12,6 +12,7 @@ target_link_libraries(network PRIVATE
 )
 
 target_link_libraries(client PRIVATE
+	protolib
 	networklib
 )
 

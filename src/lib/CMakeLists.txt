@@ -2,7 +2,6 @@ add_library(networklib
 	tcp_async_server.cpp
 	tcp_client.cpp
 	tcp_session.cpp
-	threadpool.cpp
 )
 
 find_package(Boost REQUIRED)
@@ -23,7 +22,7 @@ install(FILES
 	tcp_client.h
 	tcp_session.h
 	request_processor.h
-	threadpool.h
+	protocol.h
 	DESTINATION include
 )
 

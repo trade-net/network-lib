@@ -1,4 +1,5 @@
 find_package(Protobuf REQUIRED)
+find_package(absl REQUIRED)
 
 include_directories(${Protobuf_INCLUDE_DIRS})
 
@@ -14,10 +15,16 @@ add_library(protolib
 )
 
 target_link_libraries(protolib PRIVATE
-	protobuf
+	protobuf::libprotobuf
+	absl::base
+	absl::strings
+	absl::log
+	absl::raw_logging_internal
+	absl::check
+	${Protobuf_LIBRARIES}
 )
 
 target_include_directories(protolib PUBLIC 
 	${CMAKE_CURRENT_BINARY_DIR}
+	${Protobuf_INCLUDE_DIRS}
 )
-

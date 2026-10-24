@@ -14,11 +14,13 @@ public:
         connect(endpoints);
     }
 
-    void sendMessage(const std::string& message) {
+    void sendMessage(const std::string& message, char requestId = 0) {
         boost::system::error_code ec;
 
-        // Send the message to the server
-        boost::asio::write(socket_, boost::asio::buffer(message), ec);
+        // Send the message to the server, first byte is the requestId (0 = the Order handler)
+        std::string framed(1, requestId);
+        framed += message;
+        boost::asio::write(socket_, boost::asio::buffer(framed), ec);
         if (!ec) {
             std::cout << "Message sent: " << message << std::endl;
         } else {
@@ -30,8 +32,12 @@ public:
         size_t length = socket_.read_some(boost::asio::buffer(response), ec);
         if (!ec) {
             //std::cout << "Server response: " << std::string(response.data(), length) << std::endl;
+        	if (length == 0 || response[0] != 0) {
+        		std::cout << "Error response: " << std::string(response.data() + 1, length - 1) << std::endl;
+        		return;
+        	}
         	Order order;
-        	order.ParseFromString(std::string(response.data(), length));
+        	order.ParseFromString(std::string(response.data() + 1, length - 1));
 			std::cout << "Order: "
 				<< "id=" << order.id()
 				<< ", name=" << order.name()
@@ -71,10 +77,10 @@ int main() {
 
         client.sendMessage(order.SerializeAsString());
         client.sendMessage(order.SerializeAsString());
+        client.sendMessage("not a protobuf");   // parse failure -> error response
+        client.sendMessage("x", 99);             // unknown request id -> error response
         //client.sendMessage("How are you?");
         //client.sendMessage("How are you?");
-        client.sendMessage("\n");
-        
         // You can continue sending more messages without closing the connection
         // client.sendMessage("Another message");
 

@@ -4,7 +4,7 @@
 
 class MyRequestProcessor : public network::RequestProcessor{
 public:
-	MyRequestProcessor(size_t poolSize): RequestProcessor(poolSize)
+	MyRequestProcessor()
 	{
 		registerHandler<Order, Order>([this](const Order& request){
 			return processGetOrder(request);

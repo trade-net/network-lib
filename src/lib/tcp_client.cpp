@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <tcp_client.h>
+#include <protocol.h>
 
 namespace network{
 
@@ -43,7 +44,18 @@ std::string TcpClient::send(int requestId, const std::string& request)
 		return "";
 	}
 
-	return std::string(responseArr.data(), length);
+	if(length == 0)
+	{
+		return "";
+	}
+
+	std::string payload(responseArr.data() + 1, length - 1);
+	if(static_cast<ResponseStatus>(responseArr[0]) != ResponseStatus::Ok)
+	{
+		throw RequestError(payload);
+	}
+
+	return payload;
 }
 
 void TcpClient::connect(const tcp::resolver::results_type& endpoints)
