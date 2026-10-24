@@ -25,11 +25,7 @@ std::string TcpClient::send(int requestId, const std::string& request)
 
 	// Send the message to the server
 	boost::asio::write(s_socket, boost::asio::buffer(static_cast<char>(requestId) + request), ec); // first byte is requestId
-	if (!ec) 
-	{
-		std::cout << "Message sent: " << request << std::endl;
-	}
-	else
+	if (ec)
 	{
 		std::cerr << "Error sending message: " << ec.message() << std::endl;
 	}
@@ -62,10 +58,8 @@ void TcpClient::connect(const tcp::resolver::results_type& endpoints)
 {
 	boost::system::error_code ec;
 	boost::asio::connect(s_socket, endpoints, ec);
-	if (!ec) {
-		std::cout << "Connected to server!" << std::endl;
-	} else {
-		std::cerr << "Connection failed: " << ec.message() << std::endl;
+	if (ec) {
+		throw std::runtime_error("Connection failed: " + ec.message());
 	}
 }
 
