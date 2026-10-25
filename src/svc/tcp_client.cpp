@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <order.pb.h>
+#include <protocol.h>
 
 using boost::asio::ip::tcp;
 
@@ -20,31 +21,39 @@ public:
         // Send the message to the server, first byte is the requestId (0 = the Order handler)
         std::string framed(1, requestId);
         framed += message;
-        boost::asio::write(socket_, boost::asio::buffer(framed), ec);
+        boost::asio::write(socket_, boost::asio::buffer(network::makeFrame(framed)), ec);
         if (!ec) {
             std::cout << "Message sent: " << message << std::endl;
         } else {
             std::cerr << "Error sending message: " << ec.message() << std::endl;
         }
 
-        // Wait for the server's response
-        std::array<char, 1024> response;
-        size_t length = socket_.read_some(boost::asio::buffer(response), ec);
-        if (!ec) {
-            //std::cout << "Server response: " << std::string(response.data(), length) << std::endl;
-        	if (length == 0 || response[0] != 0) {
-        		std::cout << "Error response: " << std::string(response.data() + 1, length - 1) << std::endl;
-        		return;
-        	}
-        	Order order;
-        	order.ParseFromString(std::string(response.data() + 1, length - 1));
-			std::cout << "Order: "
-				<< "id=" << order.id()
-				<< ", name=" << order.name()
-				<< ", isBuy=" << order.isbuy() << std::endl;
-        } else {
+        // Wait for the server's response: a frame header, then exactly the body
+        char header[network::kFrameHeaderSize];
+        boost::asio::read(socket_, boost::asio::buffer(header), ec);
+        if (ec) {
             std::cerr << "Error receiving response: " << ec.message() << std::endl;
+            return;
         }
+
+        std::string response(network::readFrameLength(header), '\0');
+        boost::asio::read(socket_, boost::asio::buffer(response), ec);
+        if (ec || response.empty()) {
+            std::cerr << "Error receiving response: " << ec.message() << std::endl;
+            return;
+        }
+
+        if (response[0] != 0) {
+            std::cout << "Error response: " << response.substr(1) << std::endl;
+            return;
+        }
+
+        Order order;
+        order.ParseFromString(response.substr(1));
+        std::cout << "Order: "
+            << "id=" << order.id()
+            << ", name=" << order.name()
+            << ", isBuy=" << order.isbuy() << std::endl;
     }
 
 private:

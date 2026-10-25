@@ -1,13 +1,20 @@
+find_package(GTest QUIET)
+
+if(NOT GTest_FOUND)
+	message(STATUS "GTest not found, skipping networklib tests")
+	return()
+endif()
+
 add_executable(networklib.t
+	framing.t.cpp
 )
 
 target_link_libraries(networklib.t PRIVATE
-	gtest
-	gtest_main
-	rt
+	GTest::gtest
+	GTest::gtest_main
 	pthread
-	gmock
 	networklib
+	protolib
 )
 
 add_test(

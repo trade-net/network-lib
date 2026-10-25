@@ -19,6 +19,11 @@ public:
 	TcpAsyncServer(RequestProcessor& processor, size_t numLoops = 1, unsigned short port = 1234);
 	~TcpAsyncServer();
 
+	// The port actually bound, useful when constructed with port 0.
+	unsigned short port() const{
+		return s_acceptor.local_endpoint().port();
+	}
+
 	// Blocks until stop() is called.
 	void run();
 	void stop();

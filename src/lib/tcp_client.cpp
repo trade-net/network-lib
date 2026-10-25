@@ -23,30 +23,42 @@ std::string TcpClient::send(int requestId, const std::string& request)
 {
 	boost::system::error_code ec;
 
-	// Send the message to the server
-	boost::asio::write(s_socket, boost::asio::buffer(static_cast<char>(requestId) + request), ec); // first byte is requestId
-	if (ec)
+	std::string body(1, static_cast<char>(requestId)); // first byte is requestId
+	body += request;
+	if(body.size() > kMaxFrameSize)
 	{
-		std::cerr << "Error sending message: " << ec.message() << std::endl;
+		throw std::runtime_error("Request too large");
 	}
 
-	// Wait for the server's response
-	std::array<char, 1024> responseArr;
-	size_t length = s_socket.read_some(boost::asio::buffer(responseArr), ec);
-
+	boost::asio::write(s_socket, boost::asio::buffer(makeFrame(body)), ec);
 	if(ec)
 	{
-		std::cerr << "Error receiving response: " << ec.message() << std::endl;
-		return "";
+		throw std::runtime_error("Error sending message: " + ec.message());
 	}
 
-	if(length == 0)
+	// the response is a frame too: read the header, then exactly the body
+	char header[kFrameHeaderSize];
+	boost::asio::read(s_socket, boost::asio::buffer(header), ec);
+	if(ec)
 	{
-		return "";
+		throw std::runtime_error("Error receiving response: " + ec.message());
 	}
 
-	std::string payload(responseArr.data() + 1, length - 1);
-	if(static_cast<ResponseStatus>(responseArr[0]) != ResponseStatus::Ok)
+	const uint32_t length = readFrameLength(header);
+	if(length == 0 || length > kMaxFrameSize)
+	{
+		throw std::runtime_error("Invalid response frame length " + std::to_string(length));
+	}
+
+	std::string response(length, '\0');
+	boost::asio::read(s_socket, boost::asio::buffer(response), ec);
+	if(ec)
+	{
+		throw std::runtime_error("Error receiving response: " + ec.message());
+	}
+
+	std::string payload = response.substr(1);
+	if(static_cast<ResponseStatus>(response[0]) != ResponseStatus::Ok)
 	{
 		throw RequestError(payload);
 	}

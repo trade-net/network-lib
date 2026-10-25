@@ -9,6 +9,7 @@
 #include <deque>
 #include <string>
 
+// size of each socket read; a message can span several reads or share one with others
 #define MAX_DATA_LENGTH 1024
 
 namespace network{
@@ -32,15 +33,21 @@ public:
 	void start();
 	void handleRead(const boost::system::error_code& ec, size_t bytes_transferred);
 
+	// Queues a response body ([status][payload]) for sending, wrapped in a frame.
 	// Safe to call from any thread: the write is posted onto the session's loop.
 	void write(std::string response);
 
 private:
+	// Dispatches every complete frame in s_inbound. Returns false if the session
+	// is closing and must not read any more.
+	bool processFrames();
+
 	void doWrite();
 	void handleWrite(const boost::system::error_code& ec, size_t bytes_transferred);
 
 	tcp::socket s_socket;
 	char data[MAX_DATA_LENGTH];
+	std::string s_inbound; // bytes received that do not yet form a complete frame
 
 	RequestProcessor& s_processor;
 
